@@ -3,9 +3,9 @@ import os
 
 results = pd.DataFrame()
 
-for file in os.listdir('stockLicenta'):
+for file in os.listdir('data'):
     filename = os.fsdecode(file)
-    combo = pd.read_csv(r'stockLicenta/'+filename, usecols=["Date","Adj Close"])
+    combo = pd.read_csv(r'data/'+filename, usecols=["Date","Adj Close"])
     combo.at[0, "Invested"] = 2500
     ticker = filename.replace(".csv", '')
     for row in range(1,627):
