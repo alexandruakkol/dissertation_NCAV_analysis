@@ -1,14 +1,81 @@
 import pandas as pd
 import os
+import statistics
+import math
+import numpy as np
 
-results = pd.DataFrame()
+results =  pd.DataFrame()
+benchResults = pd.DataFrame()
+ncavPortfolio = pd.DataFrame()
 
-for file in os.listdir('data'):
+ncavPortfolio = pd.read_csv('data/stocks/AA.csv', usecols=["Date"])
+
+weeks_to_analyze = 52 #max 644 weeks in database
+#view whole dataframe option
+if(False):
+    pd.set_option("display.max_rows", None, "display.max_columns", None)
+
+for file in os.listdir('data/stocks'):
     filename = os.fsdecode(file)
-    combo = pd.read_csv(r'data/'+filename, usecols=["Date","Adj Close"])
-    combo.at[0, "Invested"] = 2500
+
+
+#benchmark performance block
+    if filename == 'SPY.csv':
+        combo = pd.read_csv(r'data/stocks/' + filename, usecols=["Date", "Adj Close"])
+
+        combo.at[0, "Invested"] = 100000
+        ticker = filename.replace(".csv", '')
+        for row in range(1, weeks_to_analyze):
+            combo.at[row, "Invested"] = (combo.iloc[row]["Adj Close"] / combo.iloc[row - 1]["Adj Close"]) * \
+                                        combo.iloc[row - 1]["Invested"]
+            combo.at[row, 'Log returns'] = np.log(combo.iloc[row]['Adj Close'] / combo.iloc[row-1]['Adj Close'])
+
+        weekly_stdDev = combo['Log returns'].std()
+        annualized_stdDev = weekly_stdDev * np.sqrt(52)
+        print(annualized_stdDev)
+
+
+        benchResults.at[0, ticker] = combo.iloc[weeks_to_analyze-1]["Invested"]
+        benchResults.to_csv('./benchmark.csv', index=False)
+        benchResults.at[1, ticker] = annualized_stdDev
+        continue
+
+
+    #if filename == 'AA.csv' or filename == 'ACH.csv':
+    combo = pd.read_csv(r'data/stocks/'+filename, usecols=["Date","Adj Close"])
+    combo.at[0, "Invested"] = 2857.14
     ticker = filename.replace(".csv", '')
-    for row in range(1,627):
+
+    #printout for every week
+    for row in range(1,weeks_to_analyze):
         combo.at[row,"Invested"] = (combo.iloc[row]["Adj Close"] / combo.iloc[row-1]["Adj Close"]) * combo.iloc[row-1]["Invested"]
-    results.at[0,ticker] = combo.iloc[626]["Invested"]
-    results.to_csv('./aggregate.csv', index=False)
+        combo.at[row, 'Log returns'] = np.log(combo.iloc[row]['Adj Close'] / combo.iloc[row - 1]['Adj Close'])
+        ncavPortfolio.at[row, ticker] = combo.at[row,"Invested"]
+
+    weekly_stdDev = combo['Log returns'].std()
+    annualized_stdDev = weekly_stdDev * np.sqrt(52)
+
+    results.at[0,0] = "Terminal value"
+    results.at[1,0] = "Standard Deviation"
+
+    results.at[0,ticker] = combo.iloc[weeks_to_analyze-1]["Invested"]
+    #computing the annualized rate of return for each stock
+    results.at[1,ticker] = annualized_stdDev
+
+results.to_csv('./aggregate.csv', index=False)
+ncavPortfolio.to_csv('./printout.csv', index=False)
+
+
+if(True):
+    printoutM = pd.read_csv('printout_M.csv', usecols=["Sum"])
+    for row in range(1, weeks_to_analyze):
+        printoutM.at[row, 'Log returns'] = np.log(printoutM.iloc[row]['Sum'] / printoutM.iloc[row - 1]['Sum'])
+
+    weekly_stdDev = printoutM['Log returns'].std()
+    annualized_stdDev = weekly_stdDev * np.sqrt(52)
+    print(annualized_stdDev)
+    print(printoutM)
+
+
+
+print(ncavPortfolio.reindex(days).fillna(method='ffill'))
