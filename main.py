@@ -10,7 +10,7 @@ ncavPortfolio = pd.DataFrame()
 
 ncavPortfolio = pd.read_csv('data/stocks/AA.csv', usecols=["Date"])
 
-weeks_to_analyze = 52 #max 644 weeks in database
+weeks_to_analyze = 52 #max 642 weeks in database
 #view whole dataframe option
 if(False):
     pd.set_option("display.max_rows", None, "display.max_columns", None)
@@ -76,6 +76,3 @@ if(True):
     print(annualized_stdDev)
     print(printoutM)
 
-
-
-print(ncavPortfolio.reindex(days).fillna(method='ffill'))
