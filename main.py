@@ -2,8 +2,8 @@ import pandas as pd
 import os
 import numpy as np
 
+#main.py will handle the LT portfolio
 
-debug = False
 from_week = 43 #start week no. of analysis
 weeks_to_analyze = 96 #max of 632 weeks in database
 
@@ -16,7 +16,7 @@ ncavPortfolio = pd.read_csv('data/stocks_LT/AA.csv', usecols=["Date"])
 def NCAVsum(df, period):
     return df.loc[period, df.columns != 'Date'].sum()
 
-#view whole dataframe option
+#view whole dataframe option, for debugging
 if(False):
     pd.set_option("display.max_rows", None, "display.max_columns", None)
 
@@ -69,7 +69,7 @@ for file in os.listdir('data/stocks_LT'):
 results.to_csv('./aggregate.csv', index=False)
 
 
-if(True):
+if(True): #for debugging
     printoutM = pd.read_csv('printout_M.csv', usecols=["Sum"])
     for row in range(1, weeks_to_analyze):
         printoutM.at[row, 'Log returns'] = np.log(printoutM.iloc[row]['Sum'] / printoutM.iloc[row - 1]['Sum'])
