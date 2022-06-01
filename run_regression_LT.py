@@ -1,8 +1,6 @@
 import pandas as pd
 import numpy as np
 from math import isnan
-from sklearn import datasets, linear_model, metrics
-import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
 ##############inflation regression###############
